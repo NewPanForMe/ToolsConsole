@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="ToolsConsole.Domain/ToolsConsole.Domain.csproj" />
+  <Project Path="ToolsConsole.Application/ToolsConsole.Application.csproj" />
+  <Project Path="ToolsConsole.Infrastructure/ToolsConsole.Infrastructure.csproj" />
+  <Project Path="ToolsConsole.Api/ToolsConsole.Api.csproj" />
+</Solution>

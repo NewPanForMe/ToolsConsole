@@ -1,0 +1,123 @@
+# 说明：所有接口统一前置 /ToolsConsole（后端 UsePathBase 挂载）；不带前缀的路径仍兼容。
+# 密码类字段（登录/新增用户/重置密码）需为 AES-256-CBC 密文（密钥/IV 见 README「密码传输加密」章节），
+# 可直接用前端 aesEncryptPassword() 或同参数实现加密。
+@ToolsConsole_HostAddress = http://localhost:5091/ToolsConsole
+@token = 请粘贴登录返回的 token
+
+### 0. Scalar API 文档（Development）：浏览器打开 http://localhost:5091/ToolsConsole/scalar/v1
+GET {{ToolsConsole_HostAddress}}/scalar/v1
+Accept: text/html
+
+### 0.1 OpenAPI JSON
+GET {{ToolsConsole_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+### 1. 登录（匿名）→ { code:0, data:{ token, userName, displayName, expiresIn } }
+###    注意：password 需为 AES-256-CBC 密文，例：aesEncryptPassword("123") 的结果，不可直接填明文
+POST {{ToolsConsole_HostAddress}}/Auth/Login
+Content-Type: application/json
+
+{
+  "userName": "admin",
+  "password": "yHU3prMi7FaUimvjdViT/w=="
+}
+
+### 2. 分页列表（需 Bearer Token）
+GET {{ToolsConsole_HostAddress}}/DbConn/GetPage?keyword=&pageIndex=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### 3. 详情
+GET {{ToolsConsole_HostAddress}}/DbConn/GetById/1
+Authorization: Bearer {{token}}
+
+### 4. 新增（密码在服务端 AES 加密后落库）
+POST {{ToolsConsole_HostAddress}}/DbConn/Create
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "connName": "MyLoveBaby",
+  "dbType": "PostgreSQL",
+  "host": "47.102.153.9",
+  "port": 54321,
+  "database": "MyLoveBaby",
+  "username": "postgres",
+  "password": "hyper",
+  "options": "",
+  "remark": "示例：线上业务库"
+}
+
+### 5. 编辑（password 传 ****** 或省略 = 不修改密码）
+PUT {{ToolsConsole_HostAddress}}/DbConn/Update/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": 1,
+  "connName": "MyLoveBaby",
+  "dbType": "PostgreSQL",
+  "host": "47.102.153.9",
+  "port": 54321,
+  "database": "MyLoveBaby",
+  "username": "postgres",
+  "password": "******",
+  "options": "SSL Mode=Disable",
+  "remark": "示例：线上业务库（已加 SSL）",
+  "status": 1
+}
+
+### 6. 删除
+DELETE {{ToolsConsole_HostAddress}}/DbConn/Delete/1
+Authorization: Bearer {{token}}
+
+### 7. 按 ConnName 获取链接串（独立匿名控制器；明文不出网，返回 AES-256-GCM 密文+解密说明）
+###    字段：connectionStringEncrypted / algorithm / keySource(Security:DeliveryKey) / payloadLayout / decryptInstructions
+GET {{ToolsConsole_HostAddress}}/ConnectionString/GetByConnName?connName=MyLoveBaby
+
+### 8. connName 为空 → 应返回 400
+GET {{ToolsConsole_HostAddress}}/ConnectionString/GetByConnName?connName=
+
+### 9. connName 不存在 → 应返回 404
+GET {{ToolsConsole_HostAddress}}/ConnectionString/GetByConnName?connName=not-exists
+
+### 10. 解密验证（用 Security:DeliveryKey 的值解密第 7 步的 connectionStringEncrypted）
+###    载荷 Base64(nonce[12]+ciphertext+tag[16])，nonce 每次随机 → 两次请求密文不同属正常
+
+### 11. 用户分页（需 Bearer Token）
+GET {{ToolsConsole_HostAddress}}/User/GetPage?keyword=&pageIndex=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### 12. 新增用户（用户名唯一，密码哈希存储）
+POST {{ToolsConsole_HostAddress}}/User/Create
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userName": "zhangsan",
+  "password": "123456",
+  "displayName": "张三"
+}
+
+### 13. 编辑用户（displayName 空/省略 = 不变；status null = 不变）
+PUT {{ToolsConsole_HostAddress}}/User/Update/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "displayName": "张三丰",
+  "status": 1
+}
+
+### 14. 重置密码（body 传新密码，3-64 位）
+POST {{ToolsConsole_HostAddress}}/User/ResetPassword/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "password": "abc123"
+}
+
+### 15. 删除用户（内置 admin 与当前登录账号不可删除）
+DELETE {{ToolsConsole_HostAddress}}/User/Delete/2
+Authorization: Bearer {{token}}
+
