@@ -2,13 +2,14 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
-// 后端地址：默认公网隧道根地址；本地联调可用环境变量覆盖：
+// 后端地址：默认公网隧道根地址，不要在 target 后追加 /ToolsConsole；
+// 前端 baseURL 已经带 /ToolsConsole，代理会把完整路径原样转发。
+// 本地联调可用环境变量覆盖：
 //   PowerShell: $env:VITE_API_PROXY='http://localhost:5091'
-//   前端请求统一以 /ToolsConsole 为前置（后端 UsePathBase 挂载），代理原样转发即可
-const API_PROXY = process.env.VITE_API_PROXY ?? 'https://www.tunn.work';
+const API_PROXY =  'http://localhost:5091';
 
 export default defineConfig({
-  base: '/ToolsConsoleWeb/',
+  base: '',
   plugins: [vue()],
   resolve: {
     alias: {

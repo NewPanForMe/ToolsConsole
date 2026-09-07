@@ -43,6 +43,12 @@
             @change="(val: string | number | boolean) => toggleStatus(row, Boolean(val))"
           />
         </template>
+        <template #lastLoginAt="{ row }">
+          {{ formatDateTime(row.lastLoginAt) }}
+        </template>
+        <template #updatedAt="{ row }">
+          {{ formatDateTime(row.updatedAt) }}
+        </template>
         <template #operation="{ row }">
           <t-space>
             <t-button size="small" variant="text" theme="default" @click="openEdit(row)">编辑</t-button>
@@ -210,6 +216,21 @@ function isStatusLocked(row: UserItem | null): boolean {
 
 function canDelete(row: UserItem): boolean {
   return !isAdmin(row) && !isSelf(row);
+}
+
+function formatDateTime(value: string | null | undefined): string {
+  if (!value) {
+    return '-';
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '-';
+  }
+
+  const pad = (num: number) => num.toString().padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} `
+    + `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 async function loadData() {

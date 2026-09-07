@@ -63,10 +63,6 @@ export function httpPost<T>(url: string, data?: object): Promise<T> {
   return request<T>({ method: 'POST', url, data });
 }
 
-export function httpPut<T>(url: string, data?: object): Promise<T> {
-  return request<T>({ method: 'PUT', url, data });
-}
-
 export function httpDelete<T = void>(url: string): Promise<T> {
   return request<T>({ method: 'DELETE', url });
 }

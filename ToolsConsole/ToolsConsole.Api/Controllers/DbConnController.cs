@@ -54,8 +54,8 @@ public sealed class DbConnController : ControllerBase
         return Ok(ApiResult<DbConnDtos.DbConnDto>.Ok(dto, "新增成功"));
     }
 
-    /// <summary>PUT /DbConn/Update/5</summary>
-    [HttpPut("{id:long}")]
+    /// <summary>POST /DbConn/Update/5</summary>
+    [HttpPost("{id:long}")]
     [ActionName("Update")]
     public async Task<IActionResult> UpdateAsync(
         long id,

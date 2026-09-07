@@ -48,7 +48,7 @@ Content-Type: application/json
 }
 
 ### 5. 编辑（password 传 ****** 或省略 = 不修改密码）
-PUT {{ToolsConsole_HostAddress}}/DbConn/Update/1
+POST {{ToolsConsole_HostAddress}}/DbConn/Update/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -99,7 +99,7 @@ Content-Type: application/json
 }
 
 ### 13. 编辑用户（displayName 空/省略 = 不变；status null = 不变）
-PUT {{ToolsConsole_HostAddress}}/User/Update/2
+POST {{ToolsConsole_HostAddress}}/User/Update/2
 Authorization: Bearer {{token}}
 Content-Type: application/json
 

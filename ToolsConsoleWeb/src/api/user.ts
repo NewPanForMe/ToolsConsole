@@ -1,4 +1,4 @@
-import { httpDelete, httpGet, httpPost, httpPut } from './http';
+import { httpDelete, httpGet, httpPost } from './http';
 import type { PagedResult, UserCreatePayload, UserItem, UserUpdatePayload } from '@/types';
 import { aesEncryptPassword } from '@/utils/crypto';
 
@@ -27,7 +27,7 @@ export async function createApi(payload: UserCreatePayload): Promise<UserItem> {
 }
 
 export function updateApi(id: number, payload: UserUpdatePayload): Promise<UserItem> {
-  return httpPut<UserItem>(`/User/Update/${id}`, payload);
+  return httpPost<UserItem>(`/User/Update/${id}`, payload);
 }
 
 /** 重置密码：新密码先 AES 加密再传输 */

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using ToolsConsole.Application.Common;
 using ToolsConsole.Application.Dtos;
 using ToolsConsole.Application.Interfaces;

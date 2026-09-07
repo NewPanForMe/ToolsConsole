@@ -1,4 +1,4 @@
-import { httpDelete, httpGet, httpPost, httpPut } from './http';
+import { httpDelete, httpGet, httpPost } from './http';
 import type {
   ConnectionStringDelivery,
   DbConnItem,
@@ -25,7 +25,7 @@ export function createApi(payload: DbConnSavePayload): Promise<DbConnItem> {
 }
 
 export function updateApi(id: number, payload: DbConnSavePayload): Promise<DbConnItem> {
-  return httpPut<DbConnItem>(`/DbConn/Update/${id}`, payload);
+  return httpPost<DbConnItem>(`/DbConn/Update/${id}`, payload);
 }
 
 export function deleteApi(id: number): Promise<void> {

@@ -78,12 +78,12 @@ npm run build           # 产物输出到 dist/（vite base=/ToolsConsoleWeb/）
 | `GET  /DbConn/GetPage?keyword=&pageIndex=1&pageSize=20` | JWT | 分页（不返回密码） |
 | `GET  /DbConn/GetById/{id}` | JWT | 详情 |
 | `POST /DbConn/Create` | JWT | 新增（ConnName 唯一，密码加密落库） |
-| `PUT  /DbConn/Update/{id}` | JWT | 编辑（password 传 `******` 或省略 = 不修改） |
+| `POST /DbConn/Update/{id}` | JWT | 编辑（password 传 `******` 或省略 = 不修改） |
 | `DELETE /DbConn/Delete/{id}` | JWT | 删除 |
 | `GET  /User/GetPage?keyword=&pageIndex=1&pageSize=20` | JWT | 用户分页（不返回密码） |
 | `GET  /User/GetById/{id}` | JWT | 用户详情 |
 | `POST /User/Create` | JWT | 新增用户（用户名唯一，密码 PBKDF2 哈希存储） |
-| `PUT  /User/Update/{id}` | JWT | 编辑显示名/状态（内置 admin 与当前登录账号不可禁用） |
+| `POST /User/Update/{id}` | JWT | 编辑显示名/状态（内置 admin 与当前登录账号不可禁用） |
 | `POST /User/ResetPassword/{id}` | JWT | 重置密码（body: `{ "password": "新密码" }`） |
 | `DELETE /User/Delete/{id}` | JWT | 删除用户（内置 admin 与当前登录账号不可删除） |
 | `GET  /ConnectionString/GetByConnName?connName=xxx` | **匿名** | 按 ConnName 返回 **AES-256-GCM 加密后的链接串** + 解密说明（明文不出网） |

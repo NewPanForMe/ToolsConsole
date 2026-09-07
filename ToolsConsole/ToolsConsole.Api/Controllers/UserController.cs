@@ -60,8 +60,8 @@ public sealed class UserController : ControllerBase
         return Ok(ApiResult<UserDtos.UserDto>.Ok(dto, "新增成功"));
     }
 
-    /// <summary>PUT /User/Update/5</summary>
-    [HttpPut("{id:long}")]
+    /// <summary>POST /User/Update/5</summary>
+    [HttpPost("{id:long}")]
     [ActionName("Update")]
     public async Task<IActionResult> UpdateAsync(
         long id,
