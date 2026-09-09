@@ -13,6 +13,8 @@ public interface ISystemConfigService
 
     Task<SystemConfigDtos.SystemConfigDto?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
+    Task<SystemConfigDtos.SystemConfigDto?> GetByKeyAsync(string configKey, CancellationToken cancellationToken = default);
+
     Task<SystemConfigDtos.SystemConfigDto> CreateAsync(
         SystemConfigDtos.CreateSystemConfigRequest request,
         CancellationToken cancellationToken = default);
@@ -20,5 +22,9 @@ public interface ISystemConfigService
     Task<SystemConfigDtos.SystemConfigDto> UpdateAsync(
         long id,
         SystemConfigDtos.UpdateSystemConfigRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<SystemConfigDtos.SystemConfigDto> SaveByKeyAsync(
+        SystemConfigDtos.SaveSystemConfigByKeyRequest request,
         CancellationToken cancellationToken = default);
 }

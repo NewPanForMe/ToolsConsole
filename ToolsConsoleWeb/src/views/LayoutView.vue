@@ -37,6 +37,12 @@
               </template>
               系统配置
             </t-menu-item>
+            <t-menu-item value="/site-config">
+              <template #icon>
+                <t-icon name="view-module" />
+              </template>
+              站点配置
+            </t-menu-item>
           </t-menu>
         </t-aside>
 
@@ -58,7 +64,7 @@ import { authState, logout } from '@/stores/auth';
 const route = useRoute();
 const router = useRouter();
 
-const menuPaths = ['/dbconn', '/user', '/system-config'];
+const menuPaths = ['/dbconn', '/user', '/system-config', '/site-config'];
 const activePath = computed(() => (menuPaths.includes(route.path) ? route.path : ''));
 const pageTitle = computed(() => (route.meta.title as string | undefined) ?? 'ToolsConsole');
 

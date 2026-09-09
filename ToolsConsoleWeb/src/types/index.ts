@@ -118,6 +118,37 @@ export interface SystemConfigUpdatePayload {
   remark?: string | null;
 }
 
+/** 按 Key 保存系统配置载荷 */
+export interface SystemConfigSaveByKeyPayload {
+  configKey: string;
+  configValue: string;
+  remark?: string | null;
+}
+
+/** 站点技术栈配置项 */
+export interface SiteTechStackItem {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  icon: string;
+  tags: string[];
+}
+
+/** 站点项目经历配置项 */
+export interface SiteProjectItem {
+  id: number;
+  name: string;
+  role: string;
+  period: string;
+  company: string;
+  description: string;
+  responsibilities: string[];
+  technologies: string[];
+  achievements: string[];
+  category: string;
+}
+
 /** 可用的目标数据库类型 */
 export const DB_TYPES: Array<{ label: string; value: string }> = [
   { label: 'PostgreSQL', value: 'PostgreSQL' },

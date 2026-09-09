@@ -1,9 +1,29 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import TechStack from './components/TechStack.vue'
 import ProjectExperience from './components/ProjectExperience.vue'
-import { siteConfig } from './config/siteConfig'
+import siteConfigJson from './config/siteConfig.json'
+import { getSiteConfigApi } from './api/siteConfig'
+import type { ProjectItem, SiteConfig, TechStackItem } from './types/site-config'
 
+const siteConfig = siteConfigJson as SiteConfig
 const { personal, stats, socialLinks, contact, navLinks, pageTitle, skillsTitle, skillsSubtitle, projectsTitle, projectsSubtitle, contactTitle, footerText } = siteConfig
+const techStack = ref<TechStackItem[]>(siteConfig.techStack)
+const projects = ref<ProjectItem[]>(siteConfig.projects)
+
+onMounted(async () => {
+  try {
+    const remoteConfig = await getSiteConfigApi()
+    if (remoteConfig.techStack?.length) {
+      techStack.value = remoteConfig.techStack
+    }
+    if (remoteConfig.projects?.length) {
+      projects.value = remoteConfig.projects
+    }
+  } catch (error) {
+    console.warn((error as Error).message || '站点配置加载失败，使用本地配置')
+  }
+})
 </script>
 
 <template>
@@ -50,7 +70,11 @@ const { personal, stats, socialLinks, contact, navLinks, pageTitle, skillsTitle,
         <div class="skills-container">
           <h2>{{ skillsTitle }}</h2>
           <p class="skills-subtitle">{{ skillsSubtitle }}</p>
-          <TechStack />
+          <TechStack
+            :tech-stack="techStack"
+            :tech-categories="siteConfig.techCategories"
+            :colors="siteConfig.colors"
+          />
         </div>
       </section>
 
@@ -59,7 +83,11 @@ const { personal, stats, socialLinks, contact, navLinks, pageTitle, skillsTitle,
         <div class="projects-container">
           <h2>{{ projectsTitle }}</h2>
           <p class="projects-subtitle">{{ projectsSubtitle }}</p>
-          <ProjectExperience />
+          <ProjectExperience
+            :projects="projects"
+            :project-categories="siteConfig.projectCategories"
+            :colors="siteConfig.colors"
+          />
         </div>
       </section>
 

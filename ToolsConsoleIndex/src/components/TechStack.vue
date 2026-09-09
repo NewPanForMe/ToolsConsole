@@ -1,29 +1,33 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { siteConfig } from '../config/siteConfig'
+import type { CategoryOption, SiteColors, TechStackItem } from '@/types/site-config'
 
-const { techStack, techCategories, colors } = siteConfig
+const props = defineProps<{
+  techStack: TechStackItem[]
+  techCategories: CategoryOption[]
+  colors: SiteColors
+}>()
 
 const activeCategory = ref<string>('all')
 
 const filteredTechStack = computed(() => {
   if (activeCategory.value === 'all') {
-    return techStack
+    return props.techStack
   }
-  return techStack.filter(item => item.category === activeCategory.value)
+  return props.techStack.filter(item => item.category === activeCategory.value)
 })
 
-const categories = techCategories.map(cat => ({
+const categories = computed(() => props.techCategories.map(cat => ({
   value: cat.key,
   label: cat.key === 'all' ? '全部技术' : cat.key === 'frontend' ? '前端技术' : cat.key === 'backend' ? '后端技术' : '其他技术'
-}))
+})))
 
 const getCategoryColor = (category: string) => {
   switch (category) {
-    case 'frontend': return colors.categoryFrontend
-    case 'backend': return colors.categoryBackend
-    case 'other': return colors.categoryOther
-    default: return colors.textLight
+    case 'frontend': return props.colors.categoryFrontend
+    case 'backend': return props.colors.categoryBackend
+    case 'other': return props.colors.categoryOther
+    default: return props.colors.textLight
   }
 }
 </script>
@@ -82,19 +86,19 @@ const getCategoryColor = (category: string) => {
       <h2>技术栈统计</h2>
       <div class="stats-grid">
         <div class="stat-item">
-          <div class="stat-number">{{ techStack.length }}</div>
+          <div class="stat-number">{{ props.techStack.length }}</div>
           <div class="stat-label">技术总数</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">{{ techStack.filter(t => t.category === 'frontend').length }}</div>
+          <div class="stat-number">{{ props.techStack.filter(t => t.category === 'frontend').length }}</div>
           <div class="stat-label">前端技术</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">{{ techStack.filter(t => t.category === 'backend').length }}</div>
+          <div class="stat-number">{{ props.techStack.filter(t => t.category === 'backend').length }}</div>
           <div class="stat-label">后端技术</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">{{ techStack.filter(t => t.category === 'other').length }}</div>
+          <div class="stat-number">{{ props.techStack.filter(t => t.category === 'other').length }}</div>
           <div class="stat-label">其他技术</div>
         </div>
       </div>

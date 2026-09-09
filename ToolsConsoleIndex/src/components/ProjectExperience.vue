@@ -1,25 +1,29 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { siteConfig } from '../config/siteConfig'
+import type { CategoryOption, ProjectItem, SiteColors } from '@/types/site-config'
 
-const { projects, projectCategories, colors } = siteConfig
+const props = defineProps<{
+  projects: ProjectItem[]
+  projectCategories: CategoryOption[]
+  colors: SiteColors
+}>()
 
 const activeCategory = ref<string>('all')
 
 const filteredProjects = computed(() => {
   if (activeCategory.value === 'all') {
-    return projects
+    return props.projects
   }
-  return projects.filter(project => project.category === activeCategory.value)
+  return props.projects.filter(project => project.category === activeCategory.value)
 })
 
 const getCategoryColor = (category: string) => {
   switch (category) {
-    case 'enterprise': return colors.primary
-    case 'mobile': return colors.categoryBackend
+    case 'enterprise': return props.colors.primary
+    case 'mobile': return props.colors.categoryBackend
     case 'visualization': return '#9b59b6'
-    case 'security': return colors.categoryOther
-    default: return colors.textLight
+    case 'security': return props.colors.categoryOther
+    default: return props.colors.textLight
   }
 }
 
@@ -140,19 +144,19 @@ const toggleExpand = (id: number) => {
       <h3>项目统计</h3>
       <div class="stats-grid">
         <div class="stat-item">
-          <div class="stat-number">{{ projects.length }}</div>
+          <div class="stat-number">{{ props.projects.length }}</div>
           <div class="stat-label">项目总数</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">{{ new Set(projects.flatMap(p => p.technologies)).size }}</div>
+          <div class="stat-number">{{ new Set(props.projects.flatMap(p => p.technologies)).size }}</div>
           <div class="stat-label">涉及技术</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">{{ projects.reduce((sum, p) => sum + p.achievements.length, 0) }}</div>
+          <div class="stat-number">{{ props.projects.reduce((sum, p) => sum + p.achievements.length, 0) }}</div>
           <div class="stat-label">项目成果</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">{{ projectCategories.length - 1 }}</div>
+          <div class="stat-number">{{ props.projectCategories.length - 1 }}</div>
           <div class="stat-label">项目类型</div>
         </div>
       </div>

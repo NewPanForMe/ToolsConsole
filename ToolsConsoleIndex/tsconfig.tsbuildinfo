@@ -1,1 +1,1 @@
-{"root":["./src/main.ts","./src/vite-env.d.ts","./src/config/siteconfig.ts","./src/app.vue","./src/components/projectexperience.vue","./src/components/techstack.vue"],"version":"5.9.3"}
+{"root":["./src/main.ts","./src/vite-env.d.ts","./src/api/siteconfig.ts","./src/types/site-config.ts","./src/app.vue","./src/components/projectexperience.vue","./src/components/techstack.vue"],"version":"5.9.3"}

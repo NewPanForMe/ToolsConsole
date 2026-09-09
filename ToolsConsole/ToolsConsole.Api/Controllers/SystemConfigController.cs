@@ -43,6 +43,17 @@ public sealed class SystemConfigController : ControllerBase
             : Ok(ApiResult<SystemConfigDtos.SystemConfigDto>.Ok(dto));
     }
 
+    /// <summary>GET /SystemConfig/GetByKey?configKey=SiteConfig:TechStack</summary>
+    [HttpGet]
+    [ActionName("GetByKey")]
+    public async Task<IActionResult> GetByKeyAsync([FromQuery] string configKey, CancellationToken cancellationToken)
+    {
+        var dto = await _service.GetByKeyAsync(configKey, cancellationToken);
+        return dto is null
+            ? NotFound(ApiResult<object>.Fail(404, $"系统配置不存在（key={configKey}）"))
+            : Ok(ApiResult<SystemConfigDtos.SystemConfigDto>.Ok(dto));
+    }
+
     /// <summary>POST /SystemConfig/Create</summary>
     [HttpPost]
     [ActionName("Create")]
@@ -63,6 +74,17 @@ public sealed class SystemConfigController : ControllerBase
         CancellationToken cancellationToken)
     {
         var dto = await _service.UpdateAsync(id, request, cancellationToken);
+        return Ok(ApiResult<SystemConfigDtos.SystemConfigDto>.Ok(dto, "保存成功"));
+    }
+
+    /// <summary>POST /SystemConfig/SaveByKey</summary>
+    [HttpPost]
+    [ActionName("SaveByKey")]
+    public async Task<IActionResult> SaveByKeyAsync(
+        [FromBody] SystemConfigDtos.SaveSystemConfigByKeyRequest request,
+        CancellationToken cancellationToken)
+    {
+        var dto = await _service.SaveByKeyAsync(request, cancellationToken);
         return Ok(ApiResult<SystemConfigDtos.SystemConfigDto>.Ok(dto, "保存成功"));
     }
 }

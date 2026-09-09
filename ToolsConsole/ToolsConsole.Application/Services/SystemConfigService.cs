@@ -56,6 +56,15 @@ public sealed class SystemConfigService : ISystemConfigService
         return entity is null ? null : ToDto(entity);
     }
 
+    public async Task<SystemConfigDtos.SystemConfigDto?> GetByKeyAsync(
+        string configKey,
+        CancellationToken cancellationToken = default)
+    {
+        var key = NormalizeKey(configKey);
+        var entity = await _configs.FirstOrDefaultAsync(c => c.ConfigKey == key, cancellationToken);
+        return entity is null ? null : ToDto(entity);
+    }
+
     public async Task<SystemConfigDtos.SystemConfigDto> CreateAsync(
         SystemConfigDtos.CreateSystemConfigRequest request,
         CancellationToken cancellationToken = default)
@@ -80,6 +89,25 @@ public sealed class SystemConfigService : ISystemConfigService
         if (entity is null)
         {
             throw ApiException.NotFound($"系统配置不存在（id={id}）");
+        }
+
+        entity.UpdateValue(request.ConfigValue ?? string.Empty, NormalizeOptional(request.Remark));
+        await _configs.UpdateAsync(entity, cancellationToken);
+        return ToDto(entity);
+    }
+
+    public async Task<SystemConfigDtos.SystemConfigDto> SaveByKeyAsync(
+        SystemConfigDtos.SaveSystemConfigByKeyRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var key = NormalizeKey(request.ConfigKey);
+        var entity = await _configs.FirstOrDefaultAsync(c => c.ConfigKey == key, cancellationToken);
+
+        if (entity is null)
+        {
+            entity = SystemConfig.Create(key, request.ConfigValue ?? string.Empty, NormalizeOptional(request.Remark));
+            await _configs.AddAsync(entity, cancellationToken);
+            return ToDto(entity);
         }
 
         entity.UpdateValue(request.ConfigValue ?? string.Empty, NormalizeOptional(request.Remark));

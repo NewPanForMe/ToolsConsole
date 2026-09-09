@@ -36,4 +36,14 @@ public static class SystemConfigDtos
 
         public string? Remark { get; set; }
     }
+
+    /// <summary>按 Key 保存系统配置；不存在则新增，存在则更新。</summary>
+    public sealed class SaveSystemConfigByKeyRequest
+    {
+        public string ConfigKey { get; set; } = string.Empty;
+
+        public string ConfigValue { get; set; } = string.Empty;
+
+        public string? Remark { get; set; }
+    }
 }
