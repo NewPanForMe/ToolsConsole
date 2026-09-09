@@ -31,6 +31,12 @@
               </template>
               用户管理
             </t-menu-item>
+            <t-menu-item value="/system-config">
+              <template #icon>
+                <t-icon name="setting" />
+              </template>
+              系统配置
+            </t-menu-item>
           </t-menu>
         </t-aside>
 
@@ -52,7 +58,7 @@ import { authState, logout } from '@/stores/auth';
 const route = useRoute();
 const router = useRouter();
 
-const menuPaths = ['/dbconn', '/user'];
+const menuPaths = ['/dbconn', '/user', '/system-config'];
 const activePath = computed(() => (menuPaths.includes(route.path) ? route.path : ''));
 const pageTitle = computed(() => (route.meta.title as string | undefined) ?? 'ToolsConsole');
 

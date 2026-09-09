@@ -63,6 +63,7 @@ public sealed class DbConnService : IDbConnService
         var connName = (request.ConnName ?? string.Empty).Trim();
         var host = (request.Host ?? string.Empty).Trim();
         ValidateBase(connName, host, request.DbType);
+        ValidateStatus(request.Status);
 
         if (await _dbConns.AnyAsync(c => c.ConnName == connName, cancellationToken))
         {
@@ -79,7 +80,8 @@ public sealed class DbConnService : IDbConnService
             request.Username ?? string.Empty,
             encrypted,
             NormalizeOptional(request.Options),
-            NormalizeOptional(request.Remark));
+            NormalizeOptional(request.Remark),
+            request.Status);
 
         await _dbConns.AddAsync(entity, cancellationToken);
         return ToDto(entity);
@@ -99,6 +101,7 @@ public sealed class DbConnService : IDbConnService
         var connName = (request.ConnName ?? string.Empty).Trim();
         var host = (request.Host ?? string.Empty).Trim();
         ValidateBase(connName, host, request.DbType);
+        ValidateStatus(request.Status);
 
         if (await _dbConns.AnyAsync(c => c.Id != id && c.ConnName == connName, cancellationToken))
         {
@@ -150,13 +153,17 @@ public sealed class DbConnService : IDbConnService
 
         var name = connName.Trim();
         var entity = await _dbConns.FirstOrDefaultAsync(
-            c => c.ConnName == name && c.Status == DbConn.StatusEnabled,
+            c => c.ConnName == name,
             cancellationToken);
 
         if (entity is null)
         {
-            // 未找到与已禁用统一返回 404，避免探测“存在但被禁用”的配置
-            throw ApiException.NotFound($"未找到可用的连接配置: {name}");
+            throw ApiException.NotFound($"未找到连接配置: {name}");
+        }
+
+        if (entity.Status != DbConn.StatusEnabled)
+        {
+            throw ApiException.NotFound($"链接串已禁用: {name}");
         }
 
         var password = string.IsNullOrEmpty(entity.PasswordEncrypted)
@@ -196,6 +203,14 @@ public sealed class DbConnService : IDbConnService
         if (string.IsNullOrWhiteSpace(dbType))
         {
             throw ApiException.BadRequest("DbType 不能为空");
+        }
+    }
+
+    private static void ValidateStatus(int status)
+    {
+        if (status != DbConn.StatusEnabled && status != DbConn.StatusDisabled)
+        {
+            throw ApiException.BadRequest("状态取值不合法（0-禁用 1-启用）");
         }
     }
 

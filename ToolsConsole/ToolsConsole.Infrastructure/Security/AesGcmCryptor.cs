@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using ToolsConsole.Domain.Abstractions;
+using ToolsConsole.Infrastructure.Configuration;
 
 namespace ToolsConsole.Infrastructure.Security;
 
@@ -14,26 +15,40 @@ public sealed class AesGcmCryptor : IConnectionStringCryptor
     private const int NonceSize = 12;
     private const int TagSize = 16;
 
-    // "0123456789abcdef0123456789abcdef" 的 Base64 —— 仅开发默认值
-    private const string DefaultDevKeyBase64 = "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=";
-
-    private readonly byte[] _key;
+    private readonly Func<string?> _keyResolver;
 
     public AesGcmCryptor(string? base64Key = null)
+        : this(() => base64Key)
     {
-        var keyBase64 = string.IsNullOrWhiteSpace(base64Key) ? DefaultDevKeyBase64 : base64Key;
+    }
+
+    public AesGcmCryptor(ISystemConfigProvider systemConfigProvider, string keyName)
+        : this(() => systemConfigProvider.GetValue(keyName))
+    {
+    }
+
+    private AesGcmCryptor(Func<string?> keyResolver)
+    {
+        _keyResolver = keyResolver;
+    }
+
+    private byte[] GetKey()
+    {
+        var keyBase64 = _keyResolver();
+        keyBase64 = string.IsNullOrWhiteSpace(keyBase64) ? SystemConfigDefaults.EncryptionKey : keyBase64;
         try
         {
-            _key = Convert.FromBase64String(keyBase64);
+            var key = Convert.FromBase64String(keyBase64);
+            if (key.Length != 32)
+            {
+                throw new InvalidOperationException("Security:EncryptionKey 必须是 32 字节（256 位）密钥的 Base64 表示");
+            }
+
+            return key;
         }
         catch (FormatException ex)
         {
             throw new InvalidOperationException("Security:EncryptionKey 不是合法的 Base64 字符串", ex);
-        }
-
-        if (_key.Length != 32)
-        {
-            throw new InvalidOperationException("Security:EncryptionKey 必须是 32 字节（256 位）密钥的 Base64 表示");
         }
     }
 
@@ -49,7 +64,7 @@ public sealed class AesGcmCryptor : IConnectionStringCryptor
         var cipher = new byte[plainBytes.Length];
         var tag = new byte[TagSize];
 
-        using var aes = new AesGcm(_key, TagSize);
+        using var aes = new AesGcm(GetKey(), TagSize);
         aes.Encrypt(nonce, plainBytes, cipher, tag);
 
         var payload = new byte[NonceSize + cipher.Length + TagSize];
@@ -89,7 +104,7 @@ public sealed class AesGcmCryptor : IConnectionStringCryptor
         Buffer.BlockCopy(payload, NonceSize + cipher.Length, tag, 0, TagSize);
 
         var plain = new byte[cipher.Length];
-        using var aes = new AesGcm(_key, TagSize);
+        using var aes = new AesGcm(GetKey(), TagSize);
         aes.Decrypt(nonce, cipher, tag, plain);
         return Encoding.UTF8.GetString(plain);
     }

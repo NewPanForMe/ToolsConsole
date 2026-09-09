@@ -56,6 +56,8 @@ public static class DbConnDtos
         public string? Options { get; set; }
 
         public string? Remark { get; set; }
+
+        public int Status { get; set; } = 1;
     }
 
     /// <summary>编辑连接配置。Password 语义：null 或 ****** = 不修改；空串 = 清除密码；其它 = 重新加密。</summary>

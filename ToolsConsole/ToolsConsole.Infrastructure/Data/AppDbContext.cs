@@ -16,6 +16,8 @@ public sealed class AppDbContext : DbContext
 
     public DbSet<DbConn> DbConns => Set<DbConn>();
 
+    public DbSet<SystemConfig> SystemConfigs => Set<SystemConfig>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);

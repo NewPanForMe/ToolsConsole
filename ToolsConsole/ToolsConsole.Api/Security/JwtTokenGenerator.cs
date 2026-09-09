@@ -4,6 +4,8 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ToolsConsole.Application.Dtos;
+using ToolsConsole.Domain.Abstractions;
+using ToolsConsole.Infrastructure.Configuration;
 
 namespace ToolsConsole.Api.Security;
 
@@ -11,10 +13,12 @@ namespace ToolsConsole.Api.Security;
 public sealed class JwtTokenGenerator
 {
     private readonly JwtOptions _options;
+    private readonly ISystemConfigProvider _systemConfigProvider;
 
-    public JwtTokenGenerator(IOptions<JwtOptions> options)
+    public JwtTokenGenerator(IOptions<JwtOptions> options, ISystemConfigProvider systemConfigProvider)
     {
         _options = options.Value;
+        _systemConfigProvider = systemConfigProvider;
     }
 
     /// <summary>Token 有效期（秒）。</summary>
@@ -29,7 +33,10 @@ public sealed class JwtTokenGenerator
             new Claim("displayName", login.DisplayName),
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
+        var keyText = _systemConfigProvider.GetValue("JwtSettings:Key")
+            ?? _options.Key
+            ?? SystemConfigDefaults.JwtKey;
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyText));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var now = DateTime.UtcNow;
 

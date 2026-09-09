@@ -28,6 +28,12 @@ const router = createRouter({
           component: () => import('@/views/UserView.vue'),
           meta: { title: '用户管理' },
         },
+        {
+          path: 'system-config',
+          name: 'system-config',
+          component: () => import('@/views/SystemConfigView.vue'),
+          meta: { title: '系统配置' },
+        },
       ],
     },
     {

@@ -51,14 +51,15 @@ public sealed class DbConn : EntityBase
         string username,
         string encryptedPassword,
         string? options = null,
-        string? remark = null)
+        string? remark = null,
+        int status = StatusEnabled)
     {
         var entity = new DbConn();
         entity.SetBase(connName, dbType, host, port, database, username);
         entity.PasswordEncrypted = encryptedPassword ?? string.Empty;
         entity.Options = options;
         entity.Remark = remark;
-        entity.Status = StatusEnabled;
+        entity.Status = status == StatusDisabled ? StatusDisabled : StatusEnabled;
         entity.MarkUpdated();
         return entity;
     }

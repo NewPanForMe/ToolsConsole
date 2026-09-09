@@ -57,7 +57,7 @@ export interface DbConnSavePayload {
   password?: string | null;
   options?: string | null;
   remark?: string | null;
-  status?: number;
+  status: number;
 }
 
 /** 按 ConnName 获取链接串的结果：明文不出网，返回密文与解密说明 */
@@ -93,6 +93,29 @@ export interface UserCreatePayload {
 export interface UserUpdatePayload {
   displayName?: string;
   status?: number;
+}
+
+/** 系统配置项 */
+export interface SystemConfigItem {
+  id: number;
+  configKey: string;
+  configValue: string;
+  remark: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** 新增系统配置载荷 */
+export interface SystemConfigCreatePayload {
+  configKey: string;
+  configValue: string;
+  remark?: string | null;
+}
+
+/** 编辑系统配置载荷 */
+export interface SystemConfigUpdatePayload {
+  configValue: string;
+  remark?: string | null;
 }
 
 /** 可用的目标数据库类型 */

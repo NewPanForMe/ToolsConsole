@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using ToolsConsole.Domain.Abstractions;
+using ToolsConsole.Infrastructure.Configuration;
 
 namespace ToolsConsole.Infrastructure.Security;
 
@@ -13,11 +14,11 @@ namespace ToolsConsole.Infrastructure.Security;
 public sealed class AesCbcPasswordDecryptor : ITransportPasswordDecryptor
 {
     // 开发默认值：key = utf8("0123456789abcdef0123456789abcdef")，iv = utf8("0123456789abcdef")
-    public const string DevKeyBase64 = "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=";
-    public const string DevIvBase64 = "MDEyMzQ1Njc4OWFiY2RlZg==";
+    public const string DevKeyBase64 = SystemConfigDefaults.TransportKey;
+    public const string DevIvBase64 = SystemConfigDefaults.TransportIv;
 
-    private readonly byte[] _key;
-    private readonly byte[] _iv;
+    private readonly Func<string?> _keyResolver;
+    private readonly Func<string?> _ivResolver;
 
     public AesCbcPasswordDecryptor(IConfiguration configuration)
         : this(
@@ -27,25 +28,47 @@ public sealed class AesCbcPasswordDecryptor : ITransportPasswordDecryptor
     }
 
     public AesCbcPasswordDecryptor(string? keyBase64, string? ivBase64)
+        : this(() => keyBase64, () => ivBase64)
+    {
+    }
+
+    public AesCbcPasswordDecryptor(ISystemConfigProvider systemConfigProvider)
+        : this(
+            () => systemConfigProvider.GetValue("Security:TransportKey"),
+            () => systemConfigProvider.GetValue("Security:TransportIv"))
+    {
+    }
+
+    private AesCbcPasswordDecryptor(Func<string?> keyResolver, Func<string?> ivResolver)
+    {
+        _keyResolver = keyResolver;
+        _ivResolver = ivResolver;
+    }
+
+    private (byte[] Key, byte[] Iv) GetKeyAndIv()
     {
         try
         {
-            _key = Convert.FromBase64String(string.IsNullOrWhiteSpace(keyBase64) ? DevKeyBase64 : keyBase64);
-            _iv = Convert.FromBase64String(string.IsNullOrWhiteSpace(ivBase64) ? DevIvBase64 : ivBase64);
+            var keyBase64 = _keyResolver();
+            var ivBase64 = _ivResolver();
+            var key = Convert.FromBase64String(string.IsNullOrWhiteSpace(keyBase64) ? DevKeyBase64 : keyBase64);
+            var iv = Convert.FromBase64String(string.IsNullOrWhiteSpace(ivBase64) ? DevIvBase64 : ivBase64);
+
+            if (key.Length != 32)
+            {
+                throw new InvalidOperationException("Security:TransportKey 必须是 32 字节密钥的 Base64");
+            }
+
+            if (iv.Length != 16)
+            {
+                throw new InvalidOperationException("Security:TransportIv 必须是 16 字节 IV 的 Base64");
+            }
+
+            return (key, iv);
         }
         catch (FormatException ex)
         {
             throw new InvalidOperationException("Security:TransportKey/TransportIv 不是合法的 Base64", ex);
-        }
-
-        if (_key.Length != 32)
-        {
-            throw new InvalidOperationException("Security:TransportKey 必须是 32 字节密钥的 Base64");
-        }
-
-        if (_iv.Length != 16)
-        {
-            throw new InvalidOperationException("Security:TransportIv 必须是 16 字节 IV 的 Base64");
         }
     }
 
@@ -67,8 +90,9 @@ public sealed class AesCbcPasswordDecryptor : ITransportPasswordDecryptor
         }
 
         using var aes = Aes.Create();
-        aes.Key = _key;
-        aes.IV = _iv;
+        var (key, iv) = GetKeyAndIv();
+        aes.Key = key;
+        aes.IV = iv;
         aes.Mode = CipherMode.CBC;
         aes.Padding = PaddingMode.PKCS7;
 

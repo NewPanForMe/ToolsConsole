@@ -37,9 +37,11 @@
         size="medium"
       >
         <template #status="{ row }">
-          <t-tag :theme="row.status === 1 ? 'success' : 'default'" variant="light">
-            {{ row.status === 1 ? '启用' : '禁用' }}
-          </t-tag>
+          <t-switch
+            :value="row.status"
+            :custom-value="[1, 0]"
+            @change="(val: string | number | boolean) => toggleStatus(row, Number(val))"
+          />
         </template>
         <template #operation="{ row }">
           <t-space>
@@ -117,6 +119,12 @@
             :autosize="{ minRows: 1, maxRows: 3 }"
             placeholder="可选备注"
           />
+        </t-form-item>
+        <t-form-item label="状态" name="status">
+          <t-radio-group v-model="form.status">
+            <t-radio :value="1">启用</t-radio>
+            <t-radio :value="0">禁用</t-radio>
+          </t-radio-group>
         </t-form-item>
       </t-form>
     </t-dialog>
@@ -254,6 +262,7 @@ const emptyForm = () => ({
   password: '',
   options: '',
   remark: '',
+  status: 1,
 });
 const form = reactive(emptyForm());
 
@@ -275,6 +284,7 @@ const openEdit = (row: DbConnItem) => {
     password: '',
     options: row.options ?? '',
     remark: row.remark ?? '',
+    status: row.status,
   });
   dialogVisible.value = true;
 };
@@ -314,6 +324,7 @@ const submitForm = async () => {
       username: form.username.trim(),
       options: form.options.trim() || null,
       remark: form.remark.trim() || null,
+      status: form.status,
     };
     if (editingId.value === null) {
       payload.password = form.password || null;
@@ -324,7 +335,6 @@ const submitForm = async () => {
       if (form.password) {
         payload.password = form.password;
       }
-      payload.status = 1;
       await updateApi(editingId.value, payload);
       MessagePlugin.success('保存成功');
     }
@@ -334,6 +344,31 @@ const submitForm = async () => {
     MessagePlugin.error((error as Error).message || '保存失败');
   } finally {
     submitting.value = false;
+  }
+};
+
+const toggleStatus = async (row: DbConnItem, target: number) => {
+  if (target === row.status) {
+    return;
+  }
+
+  try {
+    await updateApi(row.id, {
+      connName: row.connName,
+      dbType: row.dbType,
+      host: row.host,
+      port: row.port,
+      database: row.database,
+      username: row.username,
+      options: row.options,
+      remark: row.remark,
+      status: target,
+    });
+    MessagePlugin.success(target === 1 ? '已启用' : '已禁用');
+    await loadData();
+  } catch (error) {
+    MessagePlugin.error((error as Error).message || '操作失败');
+    await loadData();
   }
 };
 

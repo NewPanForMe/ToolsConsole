@@ -1,13 +1,16 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using ToolsConsole.Api.Middlewares;
 using ToolsConsole.Api.Security;
 using ToolsConsole.Application.Interfaces;
 using ToolsConsole.Application.Services;
+using ToolsConsole.Domain.Abstractions;
 using ToolsConsole.Infrastructure;
+using ToolsConsole.Infrastructure.Configuration;
 using ToolsConsole.Infrastructure.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,27 +29,31 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDbConnService, DbConnService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISystemConfigService, SystemConfigService>();
 
 // ---- JWT 认证 ----
 var jwtOptions = builder.Configuration.GetSection("JwtSettings").Get<JwtOptions>() ?? new JwtOptions();
-if (string.IsNullOrWhiteSpace(jwtOptions.Key) || jwtOptions.Key.Length < 32)
-{
-    throw new InvalidOperationException("JwtSettings:Key 未配置或长度不足（建议 >= 32 字符），请检查 appsettings.json");
-}
-
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.AddSingleton<JwtTokenGenerator>();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<ISystemConfigProvider, IOptions<JwtOptions>>((options, systemConfigProvider, configuredOptions) =>
     {
+        var currentJwtOptions = configuredOptions.Value;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+            IssuerSigningKeyResolver = (_, _, _, _) =>
+            {
+                var key = systemConfigProvider.GetValue("JwtSettings:Key")
+                    ?? currentJwtOptions.Key
+                    ?? SystemConfigDefaults.JwtKey;
+                return new[] { new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)) };
+            },
             ValidateIssuer = true,
-            ValidIssuer = jwtOptions.Issuer,
+            ValidIssuer = currentJwtOptions.Issuer,
             ValidateAudience = true,
-            ValidAudience = jwtOptions.Audience,
+            ValidAudience = currentJwtOptions.Audience,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(1),
         };
