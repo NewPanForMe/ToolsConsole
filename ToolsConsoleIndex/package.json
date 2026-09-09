@@ -1,0 +1,20 @@
+{
+  "name": "tech-showcase",
+  "version": "1.0.0",
+  "description": "技术分享页面 - 展示技术栈",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.42"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.8",
+    "typescript": "^5.9.3",
+    "vite": "^8.2.2",
+    "vue-tsc": "^3.3.11"
+  }
+}
