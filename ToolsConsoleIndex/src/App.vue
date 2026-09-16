@@ -10,6 +10,12 @@ const siteConfig = siteConfigJson as SiteConfig
 const { personal, stats, socialLinks, contact, navLinks, pageTitle, skillsTitle, skillsSubtitle, projectsTitle, projectsSubtitle, contactTitle, footerText } = siteConfig
 const techStack = ref<TechStackItem[]>(siteConfig.techStack)
 const projects = ref<ProjectItem[]>(siteConfig.projects)
+const backendLinks = [
+  { name: 'YunQi', href: '/YunQi' },
+  { name: 'YunQiWeb', href: '/YunQiWeb' },
+  { name: 'ToolsConsole', href: '/ToolsConsole' },
+  { name: 'ToolsConsoleWeb', href: '/ToolsConsoleWeb' },
+]
 
 onMounted(async () => {
   try {
@@ -33,6 +39,24 @@ onMounted(async () => {
       <div class="nav-brand">{{ pageTitle }}</div>
       <div class="nav-links">
         <a v-for="link in navLinks" :key="link.href" :href="link.href">{{ link.name }}</a>
+        <div class="nav-dropdown">
+          <button class="dropdown-trigger" type="button" aria-haspopup="true">
+            后台
+            <span class="dropdown-caret">▾</span>
+          </button>
+          <div class="dropdown-menu" role="menu">
+            <a
+              v-for="link in backendLinks"
+              :key="link.href"
+              :href="link.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              role="menuitem"
+            >
+              {{ link.name }}
+            </a>
+          </div>
+        </div>
       </div>
     </nav>
 
@@ -153,6 +177,7 @@ onMounted(async () => {
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 2rem;
 }
 
@@ -165,6 +190,81 @@ onMounted(async () => {
 
 .nav-links a:hover {
   color: #2ecc71;
+}
+
+.nav-dropdown {
+  position: relative;
+}
+
+.dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #666;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.dropdown-trigger:hover,
+.nav-dropdown:focus-within .dropdown-trigger,
+.nav-dropdown:hover .dropdown-trigger {
+  color: #2ecc71;
+}
+
+.dropdown-caret {
+  font-size: 0.8rem;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.nav-dropdown:focus-within .dropdown-caret,
+.nav-dropdown:hover .dropdown-caret {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  min-width: 180px;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(46, 204, 113, 0.16);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(46, 125, 50, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+}
+
+.dropdown-menu::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -0.75rem;
+  height: 0.75rem;
+}
+
+.nav-dropdown:focus-within .dropdown-menu,
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  color: #2c3e50;
+  white-space: nowrap;
+}
+
+.dropdown-menu a:hover {
+  color: #2ecc71;
+  background: #e8f5e9;
 }
 
 /* 主要内容区域 */
