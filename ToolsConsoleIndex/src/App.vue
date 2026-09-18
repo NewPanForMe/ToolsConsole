@@ -70,11 +70,7 @@ onMounted(async () => {
         <div class="skills-container">
           <h2>{{ skillsTitle }}</h2>
           <p class="skills-subtitle">{{ skillsSubtitle }}</p>
-          <TechStack
-            :tech-stack="techStack"
-            :tech-categories="siteConfig.techCategories"
-            :colors="siteConfig.colors"
-          />
+          <TechStack :tech-stack="techStack" :tech-categories="siteConfig.techCategories" :colors="siteConfig.colors" />
         </div>
       </section>
 
@@ -83,11 +79,8 @@ onMounted(async () => {
         <div class="projects-container">
           <h2>{{ projectsTitle }}</h2>
           <p class="projects-subtitle">{{ projectsSubtitle }}</p>
-          <ProjectExperience
-            :projects="projects"
-            :project-categories="siteConfig.projectCategories"
-            :colors="siteConfig.colors"
-          />
+          <ProjectExperience :projects="projects" :project-categories="siteConfig.projectCategories"
+            :colors="siteConfig.colors" />
         </div>
       </section>
 
@@ -113,6 +106,13 @@ onMounted(async () => {
     <!-- 页脚 -->
     <footer class="footer">
       <p>{{ footerText }}</p>
+      <p class="beian-row">
+        <img class="beian-icon" src="./assets/pic_beian.png" alt="公安备案图标" />
+        <a href="https://beian.mps.gov.cn/#/query/webSearch?code=32092202000383" rel="noreferrer"
+          target="_blank">苏公网安备32092202000383号</a>
+      </p>
+      <p>ICP备案号：苏ICP备2024126181号-3</p>
+
     </footer>
   </div>
 </template>
@@ -226,10 +226,12 @@ onMounted(async () => {
     transform: scale(1);
     box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
   }
+
   50% {
     transform: scale(1.05);
     box-shadow: 0 15px 40px rgba(46, 204, 113, 0.4);
   }
+
   100% {
     transform: scale(1);
     box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
@@ -305,9 +307,17 @@ onMounted(async () => {
   transform: translateY(20px);
 }
 
-.stat-item:nth-child(1) { animation-delay: 0.1s; }
-.stat-item:nth-child(2) { animation-delay: 0.2s; }
-.stat-item:nth-child(3) { animation-delay: 0.3s; }
+.stat-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.stat-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.stat-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
 
 @keyframes fadeInUp {
   to {
@@ -419,6 +429,38 @@ onMounted(async () => {
   text-align: center;
   padding: 1.5rem;
   font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.footer p {
+  margin: 0;
+}
+
+.footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.beian-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.beian-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  object-fit: contain;
 }
 
 /* 响应式设计 */
