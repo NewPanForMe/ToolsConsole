@@ -10,6 +10,12 @@ const siteConfig = siteConfigJson as SiteConfig
 const { personal, stats, socialLinks, contact, navLinks, pageTitle, skillsTitle, skillsSubtitle, projectsTitle, projectsSubtitle, contactTitle, footerText } = siteConfig
 const techStack = ref<TechStackItem[]>(siteConfig.techStack)
 const projects = ref<ProjectItem[]>(siteConfig.projects)
+const systemLinks = [
+  { name: 'YunQi', href: '/YunQi' },
+  { name: 'YunQiWeb', href: '/YunQiWeb' },
+  { name: 'ToolsConsole', href: '/ToolsConsole' },
+  { name: 'ToolsConsoleWeb', href: '/ToolsConsoleWeb' },
+]
 
 onMounted(async () => {
   try {
@@ -31,8 +37,24 @@ onMounted(async () => {
     <!-- 顶部导航 -->
     <nav class="navbar">
       <div class="nav-brand">{{ pageTitle }}</div>
-      <div class="nav-links">
-        <a v-for="link in navLinks" :key="link.href" :href="link.href">{{ link.name }}</a>
+      <div class="nav-actions">
+        <div class="nav-links">
+          <a v-for="link in navLinks" :key="link.href" :href="link.href">{{ link.name }}</a>
+        </div>
+        <details class="system-menu">
+          <summary class="system-menu-button">系统入口</summary>
+          <div class="system-menu-panel">
+            <a
+              v-for="link in systemLinks"
+              :key="link.href"
+              :href="link.href"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {{ link.name }}
+            </a>
+          </div>
+        </details>
       </div>
     </nav>
 
@@ -140,6 +162,7 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -149,6 +172,15 @@ onMounted(async () => {
   font-size: 1.5rem;
   font-weight: 700;
   color: #2c3e50;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  min-width: 0;
 }
 
 .nav-links {
@@ -165,6 +197,58 @@ onMounted(async () => {
 
 .nav-links a:hover {
   color: #2ecc71;
+}
+
+.system-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.system-menu-button {
+  list-style: none;
+  padding: 0.35rem 0;
+  color: #666;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.system-menu-button::-webkit-details-marker {
+  display: none;
+}
+
+.system-menu[open] .system-menu-button,
+.system-menu-button:hover {
+  color: #27ae60;
+}
+
+.system-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.65rem);
+  right: 0;
+  width: 190px;
+  padding: 0.45rem;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(46, 204, 113, 0.18);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(15, 40, 90, 0.16);
+  backdrop-filter: blur(18px);
+}
+
+.system-menu-panel a {
+  display: block;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  color: #2c3e50;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.system-menu-panel a:hover {
+  background: #e8f5e9;
+  color: #27ae60;
 }
 
 /* 主要内容区域 */
@@ -465,6 +549,20 @@ onMounted(async () => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-brand {
+    font-size: 1.15rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-actions {
+    gap: 0.75rem;
+  }
+
   .about-container {
     grid-template-columns: 1fr;
     gap: 2rem;
@@ -480,9 +578,92 @@ onMounted(async () => {
     display: none;
   }
 
+  .system-menu-button {
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+  }
+
+  .system-menu-panel {
+    right: 0;
+    width: 170px;
+  }
+
+  .main-content {
+    margin-top: 64px;
+  }
+
+  .about-section,
+  .skills-section,
+  .projects-section,
+  .contact-section {
+    padding: 2.5rem 1rem;
+  }
+
+  .avatar {
+    width: 150px;
+    height: 150px;
+  }
+
+  .name {
+    font-size: 2rem;
+  }
+
+  .bio {
+    font-size: 1rem;
+  }
+
   .contact-info {
     flex-direction: column;
     gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.65rem 0.75rem;
+  }
+
+  .nav-brand {
+    max-width: 42vw;
+    font-size: 1rem;
+  }
+
+  .system-menu-button {
+    padding: 0.35rem 0;
+    font-size: 0.85rem;
+  }
+
+  .system-menu-panel {
+    width: 155px;
+  }
+
+  .about-section,
+  .skills-section,
+  .projects-section,
+  .contact-section {
+    padding: 2rem 0.75rem;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-item {
+    padding: 1rem;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+
+  .footer {
+    padding: 1.2rem 0.75rem;
+    font-size: 0.82rem;
+  }
+
+  .beian-row {
+    max-width: 100%;
+    flex-wrap: wrap;
   }
 }
 </style>

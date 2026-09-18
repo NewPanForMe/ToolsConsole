@@ -486,4 +486,40 @@ const toggleExpand = (id: number) => {
     justify-content: center;
   }
 }
+
+@media (max-width: 480px) {
+  .timeline {
+    padding-left: 1rem;
+  }
+
+  .timeline-dot {
+    left: -1.35rem;
+  }
+
+  .project-card {
+    padding: 0.95rem;
+  }
+
+  .project-name {
+    font-size: 1.05rem;
+  }
+
+  .project-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .separator {
+    display: none;
+  }
+
+  .stats-section {
+    padding: 1.25rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

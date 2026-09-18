@@ -292,4 +292,33 @@ const getCategoryColor = (category: string) => {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+@media (max-width: 480px) {
+  .tech-card {
+    padding: 1.1rem;
+  }
+
+  .card-header {
+    align-items: flex-start;
+    padding-right: 3.5rem;
+  }
+
+  .card-header h3 {
+    font-size: 1rem;
+  }
+
+  .tech-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 1.5rem;
+  }
+
+  .stats-section {
+    padding: 1.25rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
