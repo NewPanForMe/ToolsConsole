@@ -77,7 +77,6 @@ export interface SiteConfig {
   socialLinks: NamedLink[]
   contact: SiteContact
   navLinks: NavLink[]
-  systemLinks: SystemLink[]
   pageTitle: string
   skillsTitle: string
   skillsSubtitle: string

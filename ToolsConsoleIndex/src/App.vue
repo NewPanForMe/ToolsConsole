@@ -10,7 +10,7 @@ const siteConfig = siteConfigJson as SiteConfig
 const { personal, stats, socialLinks, contact, navLinks, pageTitle, skillsTitle, skillsSubtitle, projectsTitle, projectsSubtitle, contactTitle, footerText } = siteConfig
 const techStack = ref<TechStackItem[]>(siteConfig.techStack)
 const projects = ref<ProjectItem[]>(siteConfig.projects)
-const systemLinks = ref<SystemLink[]>(siteConfig.systemLinks)
+const systemLinks = ref<SystemLink[]>([])
 const systemMenu = ref<HTMLDetailsElement | null>(null)
 
 const closeSystemMenu = () => {

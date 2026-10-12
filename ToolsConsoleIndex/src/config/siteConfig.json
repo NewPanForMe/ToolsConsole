@@ -56,24 +56,6 @@
       "href": "#contact"
     }
   ],
-  "systemLinks": [
-    {
-      "name": "YunQi",
-      "href": "/YunQi"
-    },
-    {
-      "name": "YunQiWeb",
-      "href": "/YunQiWeb"
-    },
-    {
-      "name": "ToolsConsole",
-      "href": "/ToolsConsole"
-    },
-    {
-      "name": "ToolsConsoleWeb",
-      "href": "/ToolsConsoleWeb"
-    }
-  ],
   "pageTitle": "个人介绍",
   "skillsTitle": "技术栈",
   "skillsSubtitle": "我熟悉的技术和工具",
