@@ -14,6 +14,7 @@ public sealed class SiteConfigController : ControllerBase
 {
     public const string TechStackKey = "SiteConfig:TechStack";
     public const string ProjectsKey = "SiteConfig:Projects";
+    public const string SystemLinksKey = "SiteConfig:SystemLinks";
 
     private readonly ISystemConfigService _systemConfigService;
 
@@ -30,11 +31,13 @@ public sealed class SiteConfigController : ControllerBase
     {
         var techStack = await _systemConfigService.GetByKeyAsync(TechStackKey, cancellationToken);
         var projects = await _systemConfigService.GetByKeyAsync(ProjectsKey, cancellationToken);
+        var systemLinks = await _systemConfigService.GetByKeyAsync(SystemLinksKey, cancellationToken);
 
         var dto = new SiteConfigDtos.SiteConfigDto
         {
             TechStack = ParseJsonArray(techStack?.ConfigValue),
             Projects = ParseJsonArray(projects?.ConfigValue),
+            SystemLinks = ParseJsonArray(systemLinks?.ConfigValue),
         };
 
         return Ok(ApiResult<SiteConfigDtos.SiteConfigDto>.Ok(dto));

@@ -67,6 +67,28 @@
             </template>
           </t-table>
         </t-tab-panel>
+
+        <t-tab-panel value="systemLinks" label="系统入口">
+          <div class="tab-actions">
+            <t-button theme="primary" @click="openCreateSystemLink">新增系统入口</t-button>
+            <span class="count-text">{{ activeCountText }}</span>
+          </div>
+          <t-table
+            :data="systemLinks"
+            :columns="systemLinkColumns"
+            :loading="loading"
+            row-key="id"
+            table-layout="fixed"
+            hover
+          >
+            <template #operation="{ row }">
+              <t-space>
+                <t-button size="small" variant="text" theme="primary" @click="openEditSystemLink(row)">编辑</t-button>
+                <t-button size="small" variant="text" theme="danger" @click="removeSystemLink(row.id)">删除</t-button>
+              </t-space>
+            </template>
+          </t-table>
+        </t-tab-panel>
       </t-tabs>
     </t-card>
 
@@ -143,6 +165,26 @@
         </t-form-item>
       </t-form>
     </t-dialog>
+
+    <t-dialog
+      :visible="systemLinkDialogVisible"
+      :header="editingSystemLinkId === null ? '新增系统入口' : '编辑系统入口'"
+      :width="620"
+      cancel-btn="取消"
+      confirm-btn="确定"
+      :on-cancel="closeSystemLinkDialog"
+      :on-close="closeSystemLinkDialog"
+      :on-confirm="submitSystemLink"
+    >
+      <t-form :data="systemLinkForm" label-align="right">
+        <t-form-item label="链接名称" required-mark>
+          <t-input v-model="systemLinkForm.name" placeholder="如 ToolsConsole" />
+        </t-form-item>
+        <t-form-item label="链接地址" required-mark>
+          <t-input v-model="systemLinkForm.href" placeholder="如 /ToolsConsole 或 https://example.com" />
+        </t-form-item>
+      </t-form>
+    </t-dialog>
   </div>
 </template>
 
@@ -150,18 +192,20 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import { MessagePlugin } from 'tdesign-vue-next';
 import { getByKeyApi, saveByKeyApi } from '@/api/system-config';
-import type { SiteProjectItem, SiteTechStackItem } from '@/types';
+import type { SiteProjectItem, SiteSystemLinkItem, SiteTechStackItem } from '@/types';
 
 const TECH_STACK_KEY = 'SiteConfig:TechStack';
 const PROJECTS_KEY = 'SiteConfig:Projects';
+const SYSTEM_LINKS_KEY = 'SiteConfig:SystemLinks';
 
-type ActiveTab = 'techStack' | 'projects';
+type ActiveTab = 'techStack' | 'projects' | 'systemLinks';
 
 const activeTab = ref<ActiveTab>('techStack');
 const loading = ref(false);
 const saving = ref(false);
 const techStack = ref<SiteTechStackItem[]>([]);
 const projects = ref<SiteProjectItem[]>([]);
+const systemLinks = ref<SiteSystemLinkItem[]>([]);
 
 const techColumns = [
   { colKey: 'name', title: '名称', width: 220, ellipsis: true },
@@ -179,6 +223,12 @@ const projectColumns = [
   { colKey: 'company', title: '公司', width: 140, ellipsis: true },
   { colKey: 'category', title: '分类', width: 100 },
   { colKey: 'technologies', title: '技术', width: 260 },
+  { colKey: 'operation', title: '操作', width: 140, fixed: 'right' },
+];
+
+const systemLinkColumns = [
+  { colKey: 'name', title: '链接名称', width: 220, ellipsis: true },
+  { colKey: 'href', title: '链接地址', width: 360, ellipsis: true },
   { colKey: 'operation', title: '操作', width: 140, fixed: 'right' },
 ];
 
@@ -208,12 +258,14 @@ async function loadJsonConfig<T>(configKey: string): Promise<T[]> {
 async function loadAll() {
   loading.value = true;
   try {
-    const [loadedTechStack, loadedProjects] = await Promise.all([
+    const [loadedTechStack, loadedProjects, loadedSystemLinks] = await Promise.all([
       loadJsonConfig<SiteTechStackItem>(TECH_STACK_KEY),
       loadJsonConfig<SiteProjectItem>(PROJECTS_KEY),
+      loadJsonConfig<SiteSystemLinkItem>(SYSTEM_LINKS_KEY),
     ]);
     techStack.value = loadedTechStack;
     projects.value = loadedProjects;
+    systemLinks.value = loadedSystemLinks;
   } finally {
     loading.value = false;
   }
@@ -228,11 +280,17 @@ async function saveActiveItems() {
         configValue: JSON.stringify(techStack.value, null, 2),
         remark: 'ToolsConsoleIndex 技术栈配置',
       });
-    } else {
+    } else if (activeTab.value === 'projects') {
       await saveByKeyApi({
         configKey: PROJECTS_KEY,
         configValue: JSON.stringify(projects.value, null, 2),
         remark: 'ToolsConsoleIndex 项目经历配置',
+      });
+    } else {
+      await saveByKeyApi({
+        configKey: SYSTEM_LINKS_KEY,
+        configValue: JSON.stringify(systemLinks.value, null, 2),
+        remark: 'ToolsConsoleIndex 系统入口配置',
       });
     }
     MessagePlugin.success('保存成功');
@@ -404,7 +462,70 @@ function removeProject(id: number) {
   projects.value = projects.value.filter((item) => item.id !== id);
 }
 
-const activeCountText = computed(() => (activeTab.value === 'techStack' ? `${techStack.value.length} 项技术栈` : `${projects.value.length} 个项目`));
+const systemLinkDialogVisible = ref(false);
+const editingSystemLinkId = ref<number | null>(null);
+const systemLinkForm = reactive({
+  name: '',
+  href: '',
+});
+
+const emptySystemLinkForm = () => ({
+  name: '',
+  href: '',
+});
+
+function openCreateSystemLink() {
+  editingSystemLinkId.value = null;
+  Object.assign(systemLinkForm, emptySystemLinkForm());
+  systemLinkDialogVisible.value = true;
+}
+
+function openEditSystemLink(row: SiteSystemLinkItem) {
+  editingSystemLinkId.value = row.id;
+  Object.assign(systemLinkForm, {
+    name: row.name,
+    href: row.href,
+  });
+  systemLinkDialogVisible.value = true;
+}
+
+function closeSystemLinkDialog() {
+  systemLinkDialogVisible.value = false;
+}
+
+function submitSystemLink() {
+  if (!systemLinkForm.name.trim() || !systemLinkForm.href.trim()) {
+    MessagePlugin.warning('链接名称和链接地址不能为空');
+    return;
+  }
+
+  const item: SiteSystemLinkItem = {
+    id: editingSystemLinkId.value ?? nextId(systemLinks.value),
+    name: systemLinkForm.name.trim(),
+    href: systemLinkForm.href.trim(),
+  };
+
+  if (editingSystemLinkId.value === null) {
+    systemLinks.value = [...systemLinks.value, item];
+  } else {
+    systemLinks.value = systemLinks.value.map((link) => (link.id === item.id ? item : link));
+  }
+  systemLinkDialogVisible.value = false;
+}
+
+function removeSystemLink(id: number) {
+  systemLinks.value = systemLinks.value.filter((item) => item.id !== id);
+}
+
+const activeCountText = computed(() => {
+  if (activeTab.value === 'techStack') {
+    return `${techStack.value.length} 项技术栈`;
+  }
+  if (activeTab.value === 'projects') {
+    return `${projects.value.length} 个项目`;
+  }
+  return `${systemLinks.value.length} 个入口`;
+});
 
 onMounted(loadAll);
 </script>

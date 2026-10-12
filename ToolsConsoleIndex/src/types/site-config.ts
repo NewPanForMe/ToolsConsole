@@ -8,6 +8,11 @@ export interface NavLink {
   href: string
 }
 
+export interface SystemLink {
+  name: string
+  href: string
+}
+
 export interface SiteStat {
   value: string
   label: string
@@ -72,6 +77,7 @@ export interface SiteConfig {
   socialLinks: NamedLink[]
   contact: SiteContact
   navLinks: NavLink[]
+  systemLinks: SystemLink[]
   pageTitle: string
   skillsTitle: string
   skillsSubtitle: string
@@ -89,4 +95,5 @@ export interface SiteConfig {
 export interface SiteConfigResponse {
   techStack?: TechStackItem[] | null
   projects?: ProjectItem[] | null
+  systemLinks?: SystemLink[] | null
 }

@@ -149,6 +149,13 @@ export interface SiteProjectItem {
   category: string;
 }
 
+/** 站点系统入口配置项 */
+export interface SiteSystemLinkItem {
+  id: number;
+  name: string;
+  href: string;
+}
+
 /** 可用的目标数据库类型 */
 export const DB_TYPES: Array<{ label: string; value: string }> = [
   { label: 'PostgreSQL', value: 'PostgreSQL' },

@@ -4,18 +4,20 @@ import TechStack from './components/TechStack.vue'
 import ProjectExperience from './components/ProjectExperience.vue'
 import siteConfigJson from './config/siteConfig.json'
 import { getSiteConfigApi } from './api/siteConfig'
-import type { ProjectItem, SiteConfig, TechStackItem } from './types/site-config'
+import type { ProjectItem, SiteConfig, SystemLink, TechStackItem } from './types/site-config'
 
 const siteConfig = siteConfigJson as SiteConfig
 const { personal, stats, socialLinks, contact, navLinks, pageTitle, skillsTitle, skillsSubtitle, projectsTitle, projectsSubtitle, contactTitle, footerText } = siteConfig
 const techStack = ref<TechStackItem[]>(siteConfig.techStack)
 const projects = ref<ProjectItem[]>(siteConfig.projects)
-const systemLinks = [
-  { name: 'YunQi', href: '/YunQi' },
-  { name: 'YunQiWeb', href: '/YunQiWeb' },
-  { name: 'ToolsConsole', href: '/ToolsConsole' },
-  { name: 'ToolsConsoleWeb', href: '/ToolsConsoleWeb' },
-]
+const systemLinks = ref<SystemLink[]>(siteConfig.systemLinks)
+const systemMenu = ref<HTMLDetailsElement | null>(null)
+
+const closeSystemMenu = () => {
+  if (systemMenu.value) {
+    systemMenu.value.open = false
+  }
+}
 
 onMounted(async () => {
   try {
@@ -25,6 +27,9 @@ onMounted(async () => {
     }
     if (remoteConfig.projects?.length) {
       projects.value = remoteConfig.projects
+    }
+    if (remoteConfig.systemLinks?.length) {
+      systemLinks.value = remoteConfig.systemLinks
     }
   } catch (error) {
     console.warn((error as Error).message || '站点配置加载失败，使用本地配置')
@@ -41,7 +46,7 @@ onMounted(async () => {
         <div class="nav-links">
           <a v-for="link in navLinks" :key="link.href" :href="link.href">{{ link.name }}</a>
         </div>
-        <details class="system-menu">
+        <details ref="systemMenu" class="system-menu">
           <summary class="system-menu-button">系统入口</summary>
           <div class="system-menu-panel">
             <a
@@ -50,6 +55,7 @@ onMounted(async () => {
               :href="link.href"
               target="_blank"
               rel="noreferrer"
+              @click="closeSystemMenu"
             >
               {{ link.name }}
             </a>

@@ -10,5 +10,7 @@ public static class SiteConfigDtos
         public JsonNode? TechStack { get; set; }
 
         public JsonNode? Projects { get; set; }
+
+        public JsonNode? SystemLinks { get; set; }
     }
 }
