@@ -42,9 +42,7 @@ http.interceptors.response.use(
     if (error.response?.status === 401) {
       clearAuthStorage();
       // 避免与路由模块循环依赖，直接整页跳转（hash 路由 + /ToolsConsole 前置）
-      if (!window.location.hash.startsWith('#/login')) {
-        window.location.href = '/ToolsConsole/#/login';
-      }
+      window.location.href = '/ToolsConsole/web';
     }
     return Promise.reject(new Error(extractMessage(error)));
   },
